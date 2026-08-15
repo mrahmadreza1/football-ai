@@ -1,8 +1,15 @@
 import os
 import requests
+
 from dotenv import load_dotenv
 
-from app.database import get_news_for_publishing, mark_news_as_published
+from app.database import (
+    get_news_for_publishing,
+    mark_news_as_published
+)
+
+from app.translator import translate_news
+
 
 load_dotenv()
 
@@ -40,15 +47,24 @@ def publish_news():
 
     for news_id, title, description, url in news_list:
 
-        text = (
-            f"<b>{title}</b>\n\n"
-            f"{description or ''}\n\n"
-            f"🔗 <a href=\"{url}\">Read more</a>"
-        )
-
         try:
+            # ترجمه عنوان و توضیحات با یک درخواست API
+            title_fa, description_fa = translate_news(
+                title,
+                description
+            )
+
+            # ساخت متن نهایی برای تلگرام
+            text = (
+                f"<b>{title_fa}</b>\n\n"
+                f"{description_fa}\n\n"
+                f"🔗 <a href=\"{url}\">منبع خبر</a>"
+            )
+
+            # ارسال به کانال
             send_to_telegram(text)
 
+            # علامت‌گذاری خبر به عنوان منتشرشده
             mark_news_as_published(news_id)
 
             print(f"✅ Published: {title}")
