@@ -11,6 +11,10 @@ def fetch_news():
     initialize_database()
     feed = feedparser.parse(RSS_URL)
 
+    print(feed.bozo)
+    print(feed.bozo_exception if feed.bozo else "RSS OK")
+    print(feed.get("status"))
+
     fetched = len(feed.entries)
     new_count = 0
 
