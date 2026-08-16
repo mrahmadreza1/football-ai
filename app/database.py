@@ -220,7 +220,7 @@ def get_news_for_publishing():
             description,
             title_fa,
             description_fa,
-            ,
+            url,
             image_url,
             video_url
         FROM news
