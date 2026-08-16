@@ -20,12 +20,14 @@ def initialize_database():
                 title_fa TEXT,
                 description_fa TEXT,
                 url TEXT UNIQUE NOT NULL,
-                source TEXT DEFAULT 'ESPN',
+                source TEXT DEFAULT 'BBC',
                 importance_score DOUBLE PRECISION,
                 viral_score DOUBLE PRECISION,
                 should_publish BOOLEAN DEFAULT FALSE,
                 is_published BOOLEAN DEFAULT FALSE,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                image_url TEXT,
+                video_url TEXT
             )
             """
         )
@@ -39,7 +41,9 @@ def initialize_database():
             ADD COLUMN IF NOT EXISTS viral_score DOUBLE PRECISION,
             ADD COLUMN IF NOT EXISTS should_publish BOOLEAN DEFAULT FALSE,
             ADD COLUMN IF NOT EXISTS is_published BOOLEAN DEFAULT FALSE,
-            ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            ADD COLUMN IF NOT EXISTS image_url TEXT,
+            ADD COLUMN IF NOT EXISTS video_url TEXT
             """
         )
 
@@ -69,10 +73,12 @@ def test_database():
 def save_news(
     title,
     url,
-    source="ESPN",
+    source="BBC",
     description=None,
     title_fa=None,
-    description_fa=None
+    description_fa=None,
+    image_url=None,
+    video_url=None
 ):
     connection = get_connection()
     cursor = connection.cursor()
@@ -85,9 +91,11 @@ def save_news(
             title_fa,
             description_fa,
             url,
-            source
+            source,
+            image_url,
+            video_url
         )
-        VALUES (%s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (url) DO NOTHING
         RETURNING id
         """,
@@ -97,7 +105,9 @@ def save_news(
             title_fa,
             description_fa,
             url,
-            source
+            source,
+            image_url,
+            video_url
         )
     )
 
@@ -210,7 +220,9 @@ def get_news_for_publishing():
             description,
             title_fa,
             description_fa,
-            url
+            ,
+            image_url,
+            video_url
         FROM news
         WHERE should_publish = TRUE
         AND is_published = FALSE

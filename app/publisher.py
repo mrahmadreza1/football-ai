@@ -13,9 +13,43 @@ load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
+CHANNEL_LINK = "https://t.me/FotballPersian"
+
+def send_photo(photo_url, caption):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
+
+    response = requests.post(
+        url,
+        json={
+            "chat_id": CHANNEL_ID,
+            "photo": photo_url,
+            "caption": caption,
+            "parse_mode": "HTML"
+        },
+        timeout=20
+    )
+
+    response.raise_for_status()
 
 
-def send_to_telegram(text):
+def send_video(video_url, caption):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendVideo"
+
+    response = requests.post(
+        url,
+        json={
+            "chat_id": CHANNEL_ID,
+            "video": video_url,
+            "caption": caption,
+            "parse_mode": "HTML"
+        },
+        timeout=20
+    )
+
+    response.raise_for_status()
+
+
+def send_text(text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
     response = requests.post(
@@ -30,13 +64,6 @@ def send_to_telegram(text):
 
     response.raise_for_status()
 
-    data = response.json()
-
-    if not data.get("ok"):
-        raise Exception(data)
-
-    return True
-
 
 def publish_news():
     news_list = get_news_for_publishing()
@@ -49,7 +76,9 @@ def publish_news():
         description,
         title_fa,
         description_fa,
-        url
+        url,
+        image_url,
+        video_url
     ) in news_list:
 
         try:
@@ -58,14 +87,23 @@ def publish_news():
             description_fa = description_fa or description or ""
 
             # ساخت متن نهایی برای تلگرام
-            text = (
-                f"<b>{title_fa}</b>\n\n"
+            caption = (
+                f"⚽🔥 <b>{title_fa}</b>\n\n"
                 f"{description_fa}\n\n"
-                f"🔗 <a href=\"{url}\">منبع خبر</a>"
+                f"🔗 <a href=\"{url}\">منبع خبر</a>\n"
+                f"📢 <a href=\"{CHANNEL_LINK}\">کانال فوتبال پرشین</a>"
             )
+            
 
             # ارسال به تلگرام
-            send_to_telegram(text)
+            if video_url:
+                send_video(video_url, caption)
+
+            elif image_url:
+                send_photo(image_url, caption)
+
+            else:
+                send_text(caption)
 
             # علامت‌گذاری به عنوان منتشرشده
             mark_news_as_published(news_id)

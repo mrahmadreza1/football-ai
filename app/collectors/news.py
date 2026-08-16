@@ -25,6 +25,12 @@ def fetch_news():
         title = item.get("title", "").strip()
         url = item.get("link", "").strip()
         description = item.get("summary", "").strip()
+        image_url=""
+        if "media_content" in item:
+            image_url = item.media_content[0].get("url", "")
+
+        elif "media_thumbnail" in item:
+            image_url = item.media_thumbnail[0].get("url", "")
 
         if not title or not url:
             continue
@@ -43,7 +49,9 @@ def fetch_news():
                 title_fa=title_fa,
                 description_fa=description_fa,
                 url=url,
-                source="ESPN"
+                source="BBC",
+                image_url=image_url,
+                video_url=None
             )
 
             if inserted:
