@@ -10,52 +10,50 @@ def initialize_database():
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS news (
-            id SERIAL PRIMARY KEY,
-            title TEXT NOT NULL,
-            description TEXT,
-            title_fa TEXT,
-            description_fa TEXT,
-            url TEXT UNIQUE NOT NULL,
-            source TEXT DEFAULT 'ESPN',
-            importance_score DOUBLE PRECISION,
-            viral_score DOUBLE PRECISION,
-            should_publish BOOLEAN DEFAULT FALSE,
-            is_published BOOLEAN DEFAULT FALSE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    try:
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS news (
+                id SERIAL PRIMARY KEY,
+                title TEXT NOT NULL,
+                description TEXT,
+                title_fa TEXT,
+                description_fa TEXT,
+                url TEXT UNIQUE NOT NULL,
+                source TEXT DEFAULT 'ESPN',
+                importance_score DOUBLE PRECISION,
+                viral_score DOUBLE PRECISION,
+                should_publish BOOLEAN DEFAULT FALSE,
+                is_published BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
         )
-        """
-    )
 
-    cursor.execute(
-        """
-        ALTER TABLE news
-        ADD COLUMN IF NOT EXISTS title_fa TEXT,
-        ADD COLUMN IF NOT EXISTS description_fa TEXT,
-        ADD COLUMN IF NOT EXISTS importance_score DOUBLE PRECISION,
-        ADD COLUMN IF NOT EXISTS viral_score DOUBLE PRECISION,
-        ADD COLUMN IF NOT EXISTS should_publish BOOLEAN DEFAULT FALSE,
-        ADD COLUMN IF NOT EXISTS is_published BOOLEAN DEFAULT FALSE,
-        ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        """
-    )
+        cursor.execute(
+            """
+            ALTER TABLE news
+            ADD COLUMN IF NOT EXISTS title_fa TEXT,
+            ADD COLUMN IF NOT EXISTS description_fa TEXT,
+            ADD COLUMN IF NOT EXISTS importance_score DOUBLE PRECISION,
+            ADD COLUMN IF NOT EXISTS viral_score DOUBLE PRECISION,
+            ADD COLUMN IF NOT EXISTS should_publish BOOLEAN DEFAULT FALSE,
+            ADD COLUMN IF NOT EXISTS is_published BOOLEAN DEFAULT FALSE,
+            ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            """
+        )
 
-    connection.commit()
+        connection.commit()
 
-    cursor.close()
-    connection.close()
+        print("✅ Database initialized successfully!")
 
-    print("✅ Database initialized successfully!")
+    except Exception:
+        connection.rollback()
+        raise
 
-    connection.commit()
-
-    cursor.close()
-    connection.close()
-
-    print("✅ Database initialized successfully!")
-
+    finally:
+        cursor.close()
+        connection.close()
 
 def test_database():
     try:
