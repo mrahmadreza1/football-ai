@@ -45,7 +45,7 @@ DESCRIPTION:
 """
 
     response = client.chat.completions.create(
-        model="openai/gpt-oss-120b",
+        model="llama-3.3-70b-versatile",
         messages=[
             {
                 "role": "user",
