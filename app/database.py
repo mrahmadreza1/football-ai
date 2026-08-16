@@ -6,6 +6,26 @@ def get_connection():
     return psycopg2.connect(DATABASE_URL)
 
 
+def initialize_database():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        ALTER TABLE news
+        ADD COLUMN IF NOT EXISTS title_fa TEXT,
+        ADD COLUMN IF NOT EXISTS description_fa TEXT
+        """
+    )
+
+    connection.commit()
+
+    cursor.close()
+    connection.close()
+
+    print("✅ Database initialized successfully!")
+
+
 def test_database():
     try:
         connection = get_connection()
@@ -17,7 +37,14 @@ def test_database():
         print(e)
 
 
-def save_news(title, url, source="ESPN", description=None):
+def save_news(
+    title,
+    url,
+    source="ESPN",
+    description=None,
+    title_fa=None,
+    description_fa=None
+):
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -26,14 +53,23 @@ def save_news(title, url, source="ESPN", description=None):
         INSERT INTO news (
             title,
             description,
+            title_fa,
+            description_fa,
             url,
             source
         )
-        VALUES (%s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s)
         ON CONFLICT (url) DO NOTHING
         RETURNING id
         """,
-        (title, description, url, source)
+        (
+            title,
+            description,
+            title_fa,
+            description_fa,
+            url,
+            source
+        )
     )
 
     result = cursor.fetchone()
@@ -56,6 +92,8 @@ def get_news(limit=10):
             id,
             title,
             description,
+            title_fa,
+            description_fa,
             source,
             url,
             importance_score,
@@ -137,7 +175,13 @@ def get_news_for_publishing():
 
     cursor.execute(
         """
-        SELECT id, title, description, url
+        SELECT
+            id,
+            title,
+            description,
+            title_fa,
+            description_fa,
+            url
         FROM news
         WHERE should_publish = TRUE
         AND is_published = FALSE

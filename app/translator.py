@@ -18,27 +18,24 @@ def translate_news(title, description):
     prompt = f"""
 تو مترجم و ویراستار اخبار فوتبالی برای یک کانال تلگرامی هستی.
 
-عنوان و متن خبر زیر را به فارسی ترجمه کن.
+عنوان و متن خبر زیر را به فارسی روان و طبیعی ترجمه کن.
 
 قوانین:
-- ترجمه روان و طبیعی باشد.
-- ترجمه کتابی و تحت‌اللفظی نباشد.
-- کمی چاشنی خودمانی داشته باشد، اما همچنان حرفه‌ای و خبری باشد.
-- جمله‌ها کوتاه و خوش‌خوان باشند.
-- اصطلاحات فوتبالی را طبیعی ترجمه کن.
-- نام بازیکنان، مربیان و تیم‌ها را درست حفظ کن.
+- ترجمه خشک و کتابی نباشد.
+- کمی چاشنی خودمانی و جذاب داشته باشد.
+- لحن همچنان خبری و حرفه‌ای بماند.
 - معنی خبر را تغییر نده.
-- هیچ اطلاعاتی به خبر اضافه نکن.
+- هیچ اطلاعات جدیدی اضافه نکن.
 - خبر را خلاصه نکن.
 - فقط ترجمه را برگردان.
-- هیچ توضیح اضافی ننویس.
 
-خروجی را دقیقاً در قالب JSON زیر برگردان:
+خروجی را دقیقاً در این قالب بده:
 
-{{
-    "title": "عنوان فارسی",
-    "description": "متن فارسی"
-}}
+TITLE:
+عنوان فارسی
+
+DESCRIPTION:
+متن فارسی
 
 عنوان انگلیسی:
 {title}
@@ -48,7 +45,7 @@ def translate_news(title, description):
 """
 
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-120b",
         messages=[
             {
                 "role": "user",
@@ -56,9 +53,14 @@ def translate_news(title, description):
             }
         ],
         temperature=0.2,
-        response_format={"type": "json_object"}
     )
 
-    result = json.loads(response.choices[0].message.content)
+    content = response.choices[0].message.content.strip()
 
-    return result["title"], result["description"]
+    if "TITLE:" not in content or "DESCRIPTION:" not in content:
+        raise ValueError("Invalid translation format")
+
+    title_fa = content.split("TITLE:", 1)[1].split("DESCRIPTION:", 1)[0].strip()
+    description_fa = content.split("DESCRIPTION:", 1)[1].strip()
+
+    return title_fa, description_fa

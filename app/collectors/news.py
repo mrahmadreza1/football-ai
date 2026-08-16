@@ -1,11 +1,14 @@
 import feedparser
-from app.database import save_news
+
+from app.database import save_news, initialize_database
+from app.translator import translate_news
 
 
 RSS_URL = "https://www.espn.com/espn/rss/soccer/news"
 
 
 def fetch_news():
+    initialize_database()
     feed = feedparser.parse(RSS_URL)
 
     fetched = len(feed.entries)
@@ -22,15 +25,30 @@ def fetch_news():
         if not title or not url:
             continue
 
-        inserted = save_news(
-            title=title,
-            description=description,
-            url=url,
-            source="ESPN"
-        )
+        try:
+            # ترجمه عنوان و توضیحات با یک درخواست Groq
+            title_fa, description_fa = translate_news(
+                title,
+                description
+            )
 
-        if inserted:
-            new_count += 1
+            # ذخیره خبر انگلیسی + فارسی
+            inserted = save_news(
+                title=title,
+                description=description,
+                title_fa=title_fa,
+                description_fa=description_fa,
+                url=url,
+                source="ESPN"
+            )
+
+            if inserted:
+                new_count += 1
+                print(f"✅ Saved: {title}")
+
+        except Exception as e:
+            print(f"❌ Failed: {title}")
+            print(e)
 
     print(f"New: {new_count}")
 

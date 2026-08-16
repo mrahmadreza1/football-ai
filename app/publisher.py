@@ -8,8 +8,6 @@ from app.database import (
     mark_news_as_published
 )
 
-from app.translator import translate_news
-
 
 load_dotenv()
 
@@ -45,14 +43,19 @@ def publish_news():
 
     print(f"Found {len(news_list)} news for publishing")
 
-    for news_id, title, description, url in news_list:
+    for (
+        news_id,
+        title,
+        description,
+        title_fa,
+        description_fa,
+        url
+    ) in news_list:
 
         try:
-            # ترجمه عنوان و توضیحات با یک درخواست API
-            title_fa, description_fa = translate_news(
-                title,
-                description
-            )
+            # استفاده از ترجمه ذخیره‌شده در دیتابیس
+            title_fa = title_fa or title
+            description_fa = description_fa or description or ""
 
             # ساخت متن نهایی برای تلگرام
             text = (
@@ -61,10 +64,10 @@ def publish_news():
                 f"🔗 <a href=\"{url}\">منبع خبر</a>"
             )
 
-            # ارسال به کانال
+            # ارسال به تلگرام
             send_to_telegram(text)
 
-            # علامت‌گذاری خبر به عنوان منتشرشده
+            # علامت‌گذاری به عنوان منتشرشده
             mark_news_as_published(news_id)
 
             print(f"✅ Published: {title}")
