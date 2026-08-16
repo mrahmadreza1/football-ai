@@ -12,11 +12,42 @@ def initialize_database():
 
     cursor.execute(
         """
-        ALTER TABLE news
-        ADD COLUMN IF NOT EXISTS title_fa TEXT,
-        ADD COLUMN IF NOT EXISTS description_fa TEXT
+        CREATE TABLE IF NOT EXISTS news (
+            id SERIAL PRIMARY KEY,
+            title TEXT NOT NULL,
+            description TEXT,
+            title_fa TEXT,
+            description_fa TEXT,
+            url TEXT UNIQUE NOT NULL,
+            source TEXT DEFAULT 'ESPN',
+            importance_score DOUBLE PRECISION,
+            viral_score DOUBLE PRECISION,
+            should_publish BOOLEAN DEFAULT FALSE,
+            is_published BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
         """
     )
+
+    cursor.execute(
+        """
+        ALTER TABLE news
+        ADD COLUMN IF NOT EXISTS title_fa TEXT,
+        ADD COLUMN IF NOT EXISTS description_fa TEXT,
+        ADD COLUMN IF NOT EXISTS importance_score DOUBLE PRECISION,
+        ADD COLUMN IF NOT EXISTS viral_score DOUBLE PRECISION,
+        ADD COLUMN IF NOT EXISTS should_publish BOOLEAN DEFAULT FALSE,
+        ADD COLUMN IF NOT EXISTS is_published BOOLEAN DEFAULT FALSE,
+        ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        """
+    )
+
+    connection.commit()
+
+    cursor.close()
+    connection.close()
+
+    print("✅ Database initialized successfully!")
 
     connection.commit()
 
