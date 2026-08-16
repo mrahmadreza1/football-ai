@@ -4,7 +4,7 @@ from app.database import save_news, initialize_database
 from app.translator import translate_news
 
 
-RSS_URL = "https://www.espn.com/espn/rss/soccer/news"
+RSS_URL = "https://feeds.bbci.co.uk/sport/football/rss.xml"
 
 
 def fetch_news():
