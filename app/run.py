@@ -1,5 +1,6 @@
 import traceback
 
+from app.process_news import process_news
 from app.database import initialize_database
 from app.collectors.news import fetch_news
 from app.publisher import publish_news
@@ -13,6 +14,9 @@ def main():
 
         print("📰 Fetching news...")
         fetch_news()
+
+        print("🤖 Processing news...")
+        process_news()
 
         print("📢 Publishing news...")
         publish_news()
