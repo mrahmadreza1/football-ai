@@ -37,7 +37,11 @@ TITLE:
 DESCRIPTION:
 متن فارسی
 
+عنوان انگلیسی:
+{title}
 
+متن انگلیسی:
+{description or ""}
 """
 
     response = client.chat.completions.create(
