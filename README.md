@@ -91,4 +91,4 @@ Issues and PRs are welcome.
 MIT
 
 ## Contact
-Ahmadreza Moneti — ahmadrezamenati@gmail.com — github.com/mrahmadreza1
+Ahmadreza Menati — ahmadrezamenati@gmail.com — github.com/mrahmadreza1
